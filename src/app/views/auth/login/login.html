@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login & Signup</title>
+  <link rel="stylesheet" href="login.css" />
+</head>
+<body>
+  <div class="auth-container" ng-controller="AuthToggleController as at">
+    
+    <!-- LOGIN FORM -->
+    <form class="auth-form"
+          ng-controller="LoginController as vm"
+          ng-submit="vm.loginUser()"
+          ng-show="at.activeForm === 'login'">
+      <h1 class="auth-title">Login</h1>
+      <input type="email" ng-model="vm.email" class="auth-input" placeholder="Enter Email" required />
+      <input type="password" ng-model="vm.password" class="auth-input" placeholder="Enter Password" required />
+      <button type="submit" class="auth-button">Login</button>
+      <p class="auth-text">
+        New here? 
+        <a href="#" class="auth-link" ng-click="$event.preventDefault(); at.toggleForms('signup')">
+          Sign Up
+        </a>
+      </p>
+    </form>
+
+    <!-- BUYER SIGNUP FORM -->
+    <form class="auth-form"
+          ng-controller="BuyerSignupController as buyVM"
+          ng-submit="buyVM.signUpBuyer()"
+          ng-show="at.activeForm === 'signup'">
+      <h1 class="auth-title">Sign Up as Buyer</h1>
+      <input type="email" ng-model="buyVM.email" class="auth-input" placeholder="Enter Email" required />
+      <input type="text" ng-model="buyVM.username" class="auth-input" placeholder="Enter UserName" required />
+      <input type="password" ng-model="buyVM.password" class="auth-input" placeholder="Enter Password" required />
+      <input type="password" ng-model="buyVM.confirmPassword" class="auth-input" placeholder="Confirm Password" required />
+      <button type="submit" class="auth-button">Sign Up</button>
+      <p class="auth-text">
+        Already have an account? 
+        <a href="#" class="auth-link" ng-click="$event.preventDefault(); at.toggleForms('login')">
+          Login
+        </a>
+      </p>
+      <p class="auth-text">
+        Want to rent out your car? 
+        <a href="#" class="auth-link" ng-click="$event.preventDefault(); at.goSeller()">
+          Become a Seller
+        </a>
+      </p>
+    </form>
+
+  </div>
+</body>
+</html>

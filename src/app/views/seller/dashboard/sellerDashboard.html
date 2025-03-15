@@ -1,0 +1,72 @@
+<body style="background-color: #f4f4f4;">
+  <div ng-controller="SellerDashboardController as vm" ng-init="vm.init()">
+    <app-navbar active-state="sellerDashboard"></app-navbar>
+
+    <!-- Main Content -->
+    <div class="container" style="margin-top: 90px;">
+      <h1>Incoming Bids</h1>
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <h3 class="panel-title">Bids Awaiting Your Response</h3>
+        </div>
+        <div class="panel-body">
+          <table class="table table-bordered table-striped" ng-if="vm.bids.length > 0">
+            <thead>
+              <tr>
+                <th>Car Model</th>
+                <th>Bidder Name</th>
+                <th>Govt ID</th>
+                <th>Bid Amount</th>
+                <th>Bid Date</th>
+                <th>Status</th>
+                <th>Booking Duration</th>
+                <th>Outstation</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="bid in vm.bids">
+                <td>{{ bid.vehicle.model }}</td>
+                <td>{{ bid.bidder.name }}</td>
+                <td>{{ bid.bidder.govtId }}</td>
+                <td>Rs {{ bid.bid_amount }}</td>
+                <td>{{ bid.bid_date | date:'medium' }}</td>
+                <td>
+                  <span class="label" ng-class="{
+                    'label-warning': bid.bid_status === 'Active',
+                    'label-success': bid.bid_status === 'Accepted',
+                    'label-danger': bid.bid_status === 'Rejected'
+                  }">{{ bid.bid_status }}</span>
+                </td>
+                <td>
+                  {{ bid.booking_start_date | date:'mediumDate' }} - 
+                  {{ bid.booking_end_date | date:'mediumDate' }}
+                </td>
+                <td>
+                  <span class="label" ng-class="bid.isOutstation ? 'label-info' : 'label-default'">
+                    {{ bid.isOutstation ? 'Yes' : 'No' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-success btn-sm" ng-click="vm.acceptBid(bid)" 
+                            ng-if="bid.bid_status === 'Active'">
+                      <i class="glyphicon glyphicon-ok"></i> Accept
+                    </button>
+                    <button class="btn btn-danger btn-sm" ng-click="vm.rejectBid(bid)"
+                            ng-if="bid.bid_status === 'Active'">
+                      <i class="glyphicon glyphicon-remove"></i> Reject
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p ng-if="vm.bids.length === 0" class="alert alert-info">
+            <i class="glyphicon glyphicon-info-sign"></i> No bids found.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>

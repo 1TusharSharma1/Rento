@@ -1,0 +1,225 @@
+  <div ng-controller="SuperAdminController as vm" ng-init="vm.init()">
+    <app-navbar active-state="adminDashboard"></app-navbar>
+  
+  <!-- Main Dashboard Content -->
+  <div class="container" style="margin-top:70px;">
+    <div class="page-header">
+      <h1>Admin Dashboard</h1>
+      <h3 class="lead">Platform Overview &amp; Management</h3>
+    </div>
+
+    <!-- Analytics Panels -->
+    <div class="row">
+      <div class="col-sm-6 col-md-3" ng-repeat="panel in vm.analyticsPanels">
+        <!-- Use contextual panel classes: panel-primary, panel-success, etc. -->
+        <div class="panel" ng-class="'panel-' + (panel.type || 'default')">
+          <div class="panel-body">
+            <div class="media">
+              <div class="media-left">
+                <!-- Use a fixed-size container with text-center and built-in rounded image class -->
+                <div class="img-circle text-center" style="width:60px; height:60px; line-height:60px; background-color:transparent;">
+                  <i class="{{panel.icon}} fa-2x" style="color:{{panel.bgColor}};"></i>
+                </div>
+              </div>
+              <div class="media-body">
+                <h4 class="media-heading">{{panel.subtitle}}</h4>
+                <h3>{{panel.value}}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Section -->
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <strong>Platform Users</strong>
+        <button class="btn btn-xs btn-default pull-right" ng-click="vm.loadUsers()">
+          <i class="glyphicon glyphicon-refresh"></i> Refresh
+        </button>
+        <div class="clearfix"></div>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Role(s)</th>
+                <th>Created At</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="user in vm.users | limitTo: vm.itemsPerPage : (vm.currentUserPage-1) * vm.itemsPerPage">
+                <td>{{user.email}}</td>
+                <td>
+                  <span class="label" 
+                        ng-repeat="role in (user.roles || user.user_role || ['user'])"
+                        ng-class="{'label-primary': role==='admin', 'label-success': role==='seller', 'label-info': role==='user'}">
+                    {{role}}
+                  </span>
+                </td>
+                <td>{{user.created_at | date:'mediumDate'}}</td>
+              </tr>
+              <tr ng-if="vm.users.length === 0">
+                <td colspan="3" class="text-center">No users found</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel-footer" ng-if="vm.userTotalPages > 1">
+        <div class="row">
+          <div class="col-xs-6">
+            <small>Showing page {{vm.currentUserPage}} of {{vm.userTotalPages}}</small>
+          </div>
+          <div class="col-xs-6 text-right">
+            <uib-pagination total-items="vm.users.length" 
+                            ng-model="vm.currentUserPage" 
+                            max-size="5" 
+                            items-per-page="vm.itemsPerPage" 
+                            boundary-links="true" 
+                            class="pagination-sm">
+            </uib-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vehicle Listings Section -->
+    <div class="panel panel-success" ng-if="vm.listings && vm.listings.length">
+      <div class="panel-heading">
+        <strong>Vehicle Listings</strong>
+        <div class="btn-group pull-right">
+          <button class="btn btn-xs btn-default" ng-click="vm.loadListings()">
+            <i class="glyphicon glyphicon-refresh"></i> Refresh
+          </button>
+          <button class="btn btn-xs btn-info" ng-click="vm.toggleListingOptions()">
+            <i class="glyphicon glyphicon-cog"></i> Options
+          </button>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+      
+      <!-- Listing Options Panel (Collapsible) -->
+      <div class="panel-body" uib-collapse="!vm.showListingOptions">
+        <form class="form-inline">
+          <div class="form-group">
+            <label for="listingFilter">Model:</label>
+            <input type="text" id="listingFilter" class="form-control input-sm" ng-model="vm.listingFilter.vehicleModel" placeholder="Search model">
+          </div>
+          <div class="form-group">
+            <label for="locationFilter">Location:</label>
+            <select id="locationFilter" class="form-control input-sm" ng-model="vm.listingFilter.location">
+              <option value="">All</option>
+              <option value="Pune">Pune</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Delhi">Delhi</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="statusFilter">Status:</label>
+            <select id="statusFilter" class="form-control input-sm" ng-model="vm.listingFilter.availability">
+              <option value="">All</option>
+              <option value="Available">Available</option>
+              <option value="Unavailable">Unavailable</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="sortBy">Sort:</label>
+            <select id="sortBy" class="form-control input-sm" ng-model="vm.listingSort">
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="priceAsc">Price Low-High</option>
+              <option value="priceDesc">Price High-Low</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn-sm btn-primary" ng-click="vm.applyListingFilters()">
+            <i class="glyphicon glyphicon-filter"></i> Apply
+          </button>
+          <button type="button" class="btn btn-sm btn-default" ng-click="vm.resetListingFilters()">
+            <i class="glyphicon glyphicon-refresh"></i> Reset
+          </button>
+        </form>
+      </div>
+      
+      <div class="panel-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Vehicle Model</th>
+                <th>Location</th>
+                <th>Price (₹/day)</th>
+                <th>Status</th>
+                <th>Owner</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="listing in vm.listings | limitTo: vm.itemsPerPage : (vm.currentListingPage-1) * vm.itemsPerPage">
+                <td>
+                  <img ng-src="{{ listing.images_URL[0] }}" alt="{{ listing.vehicleModel }}" height="50" width="50" class="img-responsive img-rounded" uib-tooltip="{{ listing.vehicleModel }}">
+                </td>
+                <td>
+                  <strong>{{ listing.vehicleModel }}</strong>
+                  <br>
+                  <small class="text-muted">{{ listing.vehicleNumber }}</small>
+                </td>
+                <td>{{ listing.location }}</td>
+                <td>
+                  <span class="text-primary">{{ listing.pricing.basePrice | currency:"₹":0 }}</span>
+                  <br>
+                  <small class="text-muted">Outstation: {{ listing.pricing.basePriceOutstation | currency:"₹":0 }}</small>
+                </td>
+                <td>
+                  <span class="label"
+                        ng-class="{'label-success': listing.availability==='Available', 'label-warning': listing.availability==='Pending', 'label-danger': listing.availability==='Unavailable'}">
+                    {{ listing.availability }}
+                  </span>
+                </td>
+                <td>
+                  <span uib-tooltip="{{ listing.owner.email }}">{{ listing.owner.first_name }}</span>
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-default btn-xs" uib-tooltip="View Details" ng-click="vm.viewVehicleDetails(listing)">
+                      <i class="glyphicon glyphicon-eye-open"></i>
+                    </button>
+                    <button class="btn btn-success btn-xs" uib-tooltip="List Vehicle" ng-if="listing.availability !== 'Available'" ng-click="vm.listVehicle(listing.vehicle_id)">
+                      <i class="glyphicon glyphicon-ok"></i>
+                    </button>
+                    <button class="btn btn-danger btn-xs" uib-tooltip="Delist Vehicle" ng-if="listing.availability === 'Available'" ng-click="vm.delistVehicle(listing.vehicle_id)">
+                      <i class="glyphicon glyphicon-remove"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr ng-if="vm.listings.length === 0">
+                <td colspan="7" class="text-center">No vehicle listings found</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel-footer" ng-if="vm.listingTotalPages > 1">
+        <div class="row">
+          <div class="col-xs-6">
+            <small>Showing page {{vm.currentListingPage}} of {{vm.listingTotalPages}}</small>
+          </div>
+          <div class="col-xs-6 text-right">
+            <uib-pagination total-items="vm.listings.length" 
+                            ng-model="vm.currentListingPage" 
+                            max-size="5" 
+                            items-per-page="vm.itemsPerPage" 
+                            boundary-links="true" 
+                            class="pagination-sm">
+            </uib-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

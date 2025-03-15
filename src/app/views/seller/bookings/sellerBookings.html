@@ -1,0 +1,171 @@
+<body>
+  <div ng-controller="SellerBookingsController as vm" ng-init="vm.init()">
+    <!-- Use the navbar directive instead of custom navbar -->
+    <app-navbar active-state="sellerBookings"></app-navbar>
+
+    <!-- Main Content -->
+    <main class="container" style="margin-top:100px;">
+      <h1>Seller Bookings</h1>
+
+      <!-- Analytics Cards -->
+      <div class="row">
+        <div class="col-sm-3" ng-repeat="card in vm.analyticsCards">
+          <div class="panel panel-default">
+            <div class="panel-body text-center">
+              <h4>{{card.title}}</h4>
+              <p>{{card.value}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="text-center" style="margin-bottom:20px;">
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-default" 
+                 ng-class="{'active': vm.currentView === 'confirmed'}" 
+                 ng-click="vm.changeView('confirmed')">
+            <input type="radio" name="filter" autocomplete="off" ng-checked="vm.currentView==='confirmed'"> Not Started
+          </label>
+          <label class="btn btn-default" 
+                 ng-class="{'active': vm.currentView === 'in progress'}" 
+                 ng-click="vm.changeView('in progress')">
+            <input type="radio" name="filter" autocomplete="off" ng-checked="vm.currentView==='in progress'"> Ongoing
+          </label>
+          <label class="btn btn-default" 
+                 ng-class="{'active': vm.currentView === 'completed'}" 
+                 ng-click="vm.changeView('completed')">
+            <input type="radio" name="filter" autocomplete="off" ng-checked="vm.currentView==='completed'"> Completed
+          </label>
+        </div>
+      </div>
+
+      <!-- Bookings Table -->
+      <h2 class="text-center">{{vm.currentView | uppercase}} Bookings</h2>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>Booking ID</th>
+              <th>Vehicle</th>
+              <th>Renter</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="booking in vm.renderPage()">
+              <td>#{{booking.booking_id}}</td>
+              <td>{{booking.vehicle.model}}</td>
+              <td>{{booking.renter.name}}</td>
+              <td>{{booking.booking_start_date | date}}</td>
+              <td>{{booking.booking_end_date | date}}</td>
+              <td>Rs {{booking.booking_amount}}</td>
+              <td>{{booking.status}}</td>
+              <td>
+                <button class="btn btn-success btn-xs" 
+                        ng-if="booking.status === 'Confirmed'" 
+                        ng-click="vm.startTrip(booking)">Start Trip</button>
+                <button class="btn btn-primary btn-xs" 
+                        ng-if="booking.status === 'in progress'" 
+                        ng-click="vm.endTrip(booking)">End Trip</button>
+                <button class="btn btn-info btn-xs" 
+                        ng-if="booking.status === 'completed'" 
+                        ng-click="vm.viewReceipt(booking)">View Receipt</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <ul class="pagination">
+        <li ng-class="{disabled: vm.pagination.currentPage === 1}">
+          <a href="" ng-click="vm.goToPage(vm.pagination.currentPage - 1)">Previous</a>
+        </li>
+        <li ng-repeat="page in vm.pagination.pages" 
+            ng-class="{active: page === vm.pagination.currentPage}">
+          <a href="" ng-click="vm.goToPage(page)">{{page}}</a>
+        </li>
+        <li ng-class="{disabled: vm.pagination.currentPage === vm.pagination.totalPages}">
+          <a href="" ng-click="vm.goToPage(vm.pagination.currentPage + 1)">Next</a>
+        </li>
+      </ul>
+    </main>
+
+    <!-- Modal Templates (to be opened via $uibModal) -->
+    <script type="text/ng-template" id="startTripModal.html">
+      <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss()">&times;</button>
+        <h4 class="modal-title">Start Trip</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Initial Odometer Reading</label>
+          <input type="number" class="form-control" ng-model="modalVm.initialOdometer" 
+                 placeholder="Initial Odometer" min="0" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" ng-click="modalVm.submitStartTrip()">Start Trip</button>
+        <button class="btn btn-default" ng-click="$dismiss()">Cancel</button>
+      </div>
+    </script>
+
+    <script type="text/ng-template" id="endTripModal.html">
+      <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss()">&times;</button>
+        <h4 class="modal-title">End Trip</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Final Odometer Reading</label>
+          <input type="number" class="form-control" ng-model="modalVm.finalOdometer" 
+                 placeholder="Final Odometer" min="0" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="modalVm.submitEndTrip()">End Trip</button>
+        <button class="btn btn-default" ng-click="$dismiss()">Cancel</button>
+      </div>
+    </script>
+
+    <script type="text/ng-template" id="receiptModal.html">
+      <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss()">&times;</button>
+        <h4 class="modal-title">Trip Receipt</h4>
+      </div>
+      <div class="modal-body">
+        <table class="table table-bordered">
+          <tr>
+            <th>Trip Duration:</th>
+            <td>{{modalVm.details.duration}}</td>
+          </tr>
+          <tr>
+            <th>Total KM Driven:</th>
+            <td>{{modalVm.details.kmDriven}}</td>
+          </tr>
+          <tr>
+            <th>Base Price per Day:</th>
+            <td>{{modalVm.details.basePrice}}</td>
+          </tr>
+          <tr>
+            <th>Extra Charges:</th>
+            <td>{{modalVm.details.extraCharge}}</td>
+          </tr>
+          <tr>
+            <th>Final Price:</th>
+            <td>{{modalVm.details.finalPrice}}</td>
+          </tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" ng-click="$dismiss()">Close</button>
+        <button class="btn btn-info" ng-click="modalVm.downloadReceipt()">Download Receipt</button>
+      </div>
+    </script>
+  </div>
+</body>
