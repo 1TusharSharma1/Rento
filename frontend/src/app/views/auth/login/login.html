@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login & Signup</title>
+  <link rel="stylesheet" href="login.css">
+  <!-- Optional: Include a modern font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Optional: Include some icons library -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+  <div class="container" ng-controller="AuthToggleController as at">
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-primary">
+          
+          <!-- LOGIN FORM -->
+          <div class="panel-body" ng-show="at.activeForm === 'login'">
+            <form name="loginForm"
+                  ng-controller="LoginController as vm"
+                  ng-submit="vm.loginUser()">
+              <h3 class="text-center">Login</h3>
+              
+              <!-- Error Message -->
+              <div class="alert alert-danger" ng-if="vm.errorMessage">
+                {{vm.errorMessage}}
+              </div>
+              
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" ng-model="vm.email" class="form-control" placeholder="Enter Email" required />
+              </div>
+              
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" ng-model="vm.password" class="form-control" placeholder="Enter Password" required />
+              </div>
+              
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block" ng-disabled="vm.isLoading">
+                  <span ng-if="!vm.isLoading">Login</span>
+                  <span ng-if="vm.isLoading">
+                    <i class="fas fa-spinner fa-spin"></i> Logging in...
+                  </span>
+                </button>
+              </div>
+              
+              <p class="text-center">
+                New here? 
+                <a href="#" ng-click="$event.preventDefault(); at.toggleForms('signup')">
+                  Sign Up
+                </a>
+              </p>
+            </form>
+          </div>
+
+          <!-- BUYER SIGNUP FORM -->
+          <div class="panel-body" ng-show="at.activeForm === 'signup'">
+            <form name="buyerSignupForm"
+                  ng-controller="BuyerSignupController as buyVM"
+                  ng-submit="buyVM.signUpBuyer()">
+              <h3 class="text-center">Sign Up as Buyer</h3>
+              
+              <!-- Error Message -->
+              <div class="alert alert-danger" ng-if="buyVM.errorMessage">
+                {{buyVM.errorMessage}}
+              </div>
+              
+              <div class="form-group">
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" ng-model="buyVM.email" class="form-control" placeholder="Enter Email" required />
+              </div>
+              
+              <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" ng-model="buyVM.username" class="form-control" placeholder="Enter Username" required />
+              </div>
+              
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" ng-model="buyVM.phone" class="form-control" placeholder="Enter Phone Number" required />
+              </div>
+              
+              <div class="form-group">
+                <label for="signupPassword">Password</label>
+                <input type="password" id="signupPassword" ng-model="buyVM.password" class="form-control" placeholder="Enter Password" required />
+              </div>
+              
+              <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" ng-model="buyVM.confirmPassword" class="form-control" placeholder="Confirm Password" required />
+              </div>
+              
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block" ng-disabled="buyVM.isLoading">
+                  <span ng-if="!buyVM.isLoading">Sign Up</span>
+                  <span ng-if="buyVM.isLoading">
+                    <i class="fas fa-spinner fa-spin"></i> Signing up...
+                  </span>
+                </button>
+              </div>
+              
+              <p class="text-center">
+                Already have an account? 
+                <a href="#" ng-click="$event.preventDefault(); at.toggleForms('login')">
+                  Login
+                </a>
+              </p>
+              
+              <p class="text-center">
+                Want to rent out your car? 
+                <a href="#" ng-click="$event.preventDefault(); at.goSeller()">
+                  Become a Seller
+                </a>
+              </p>
+            </form>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

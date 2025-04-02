@@ -1,0 +1,140 @@
+<!-- Main navigation bar fixed at the top of all pages -->
+<nav class="navbar navbar-default navbar-fixed-top" style="position: fixed; top: 0; width: 100%; z-index: 1000;">
+  <div class="container">
+    <!-- Brand logo and mobile menu toggle button -->
+    <div class="navbar-header">
+      <a ui-sref="buyerHome" class="navbar-brand">
+        <img src="https://media.istockphoto.com/id/1332607862/vector/car-rental-logo-template-design.jpg?s=612x612&w=0&k=20&c=Z7HXnGff9rQIvLWgrYT0E8oge2NMlLg5v0ZB1dCe4zM=" 
+             alt="RentO Logo" height="40" style="margin-left: 10px; max-height: 35px;">
+      </a>
+      <!-- Responsive menu toggle for mobile devices -->
+      <button type="button" class="navbar-toggle" ng-click="vm.isCollapsed = !vm.isCollapsed">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <!-- Collapsible navigation content -->
+    <div class="collapse navbar-collapse" uib-collapse="vm.isCollapsed">
+      <!-- Left side navigation items -->
+      <ul class="nav navbar-nav">
+        <!-- Admin section: Only visible to admin users -->
+        <li uib-dropdown ng-if="vm.isAdmin()">
+          <a href id="admin-dropdown" uib-dropdown-toggle>
+            <i class="glyphicon glyphicon-cog"></i> Admin <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="admin-dropdown">
+            <li ng-class="{active: vm.activeState === 'superAdmin'}">
+              <a ui-sref="superAdmin">
+                <i class="glyphicon glyphicon-dashboard"></i> Dashboard
+              </a>
+            </li>
+            <li ng-class="{active: vm.activeState === 'adminAnalytics'}">
+              <a ui-sref="adminAnalytics">
+                <i class="glyphicon glyphicon-stats"></i> Reports
+              </a>
+            </li>
+          </ul>
+        </li>
+        
+        <!-- Seller section: Only visible to sellers -->
+        <li uib-dropdown ng-if="vm.isSeller()">
+          <a href id="seller-dropdown" uib-dropdown-toggle>
+            <i class="glyphicon glyphicon-briefcase"></i> Seller <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="seller-dropdown">
+            <li ng-class="{active: vm.activeState === 'sellerDashboard'}">
+              <a ui-sref="sellerDashboard">
+                <i class="glyphicon glyphicon-dashboard"></i> Dashboard
+              </a>
+            </li>
+            <li ng-class="{active: vm.activeState === 'sellerListings'}">
+              <a ui-sref="sellerListings">
+                <i class="glyphicon glyphicon-list"></i> My Listings
+              </a>
+            </li>
+            <li ng-class="{active: vm.activeState === 'sellerBookings'}">
+              <a ui-sref="sellerBookings">
+                <i class="glyphicon glyphicon-calendar"></i> Bookings
+              </a>
+            </li>
+          </ul>
+        </li>
+        
+        <!-- Buyer section: Only visible to buyers -->
+        <li uib-dropdown ng-if="vm.isBuyer()">
+          <a href id="buyer-dropdown" uib-dropdown-toggle>
+            <i class="glyphicon glyphicon-shopping-cart"></i> Buyer <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="buyer-dropdown">
+            <li ng-class="{active: vm.activeState === 'buyerHome'}">
+              <a ui-sref="buyerHome">
+                <i class="glyphicon glyphicon-search"></i> Browse Cars
+              </a>
+            </li>
+            <li ng-class="{active: vm.activeState === 'buyerBookings'}">
+              <a ui-sref="buyerBookings">
+                <i class="glyphicon glyphicon-calendar"></i> Your Bookings
+              </a>
+            </li>
+          </ul>
+        </li>
+        
+        <!-- Messaging: Available to all logged-in users -->
+        <li ng-if="vm.isLoggedIn()" ng-class="{active: vm.activeState === 'conversations'}">
+          <a ui-sref="conversations">
+            <i class="glyphicon glyphicon-envelope"></i> Messages
+            <span class="badge" ng-if="vm.unreadMessages > 0">{{vm.unreadMessages}}</span>
+          </a>
+        </li>
+      </ul>
+      
+      <!-- Right side navigation: User authentication and profile -->
+      <ul class="nav navbar-nav navbar-right">
+        <!-- Login/Register buttons for non-authenticated users -->
+        <li ng-if="!vm.isLoggedIn()">
+          <a ui-sref="login" class="btn btn-primary navbar-btn">
+            <i class="glyphicon glyphicon-log-in"></i> Login
+          </a>
+        </li>
+        <li ng-if="!vm.isLoggedIn()" style="margin-left:10px;">
+          <a ui-sref="register" class="btn btn-success navbar-btn">
+            <i class="glyphicon glyphicon-user"></i> Register
+          </a>
+        </li>
+        <!-- User profile dropdown for authenticated users -->
+        <li uib-dropdown ng-if="vm.isLoggedIn()">
+          <a href id="user-dropdown" uib-dropdown-toggle>
+            <img ng-src="{{vm.userProfile.photoURL || 'https://photosking.net/wp-content/uploads/2024/05/no-dp-pic_23.webp'}}" 
+                 alt="Profile" class="img-circle" height="30" width="30">
+            <span style="padding-left:5px;">{{vm.userProfile.first_name || vm.getUserRoleDisplay()}}</span> <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="user-dropdown">
+            <li>
+              <a ui-sref="userDashboard">
+                <i class="glyphicon glyphicon-user"></i> Profile
+              </a>
+            </li>
+            <!-- Role switching options for users with multiple roles -->
+            <li ng-if="vm.isBuyer() && vm.isSeller()">
+              <a ui-sref="sellerDashboard">
+                <i class="glyphicon glyphicon-briefcase"></i> Switch to Seller
+              </a>
+            </li>
+            <li ng-if="vm.isSeller() && vm.isBuyer()">
+              <a ui-sref="buyerHome">
+                <i class="glyphicon glyphicon-shopping-cart"></i> Switch to Buyer
+              </a>
+            </li>
+            <li role="separator" class="divider"></li>
+            <li>
+              <a href ng-click="vm.logout()">
+                <i class="glyphicon glyphicon-log-out"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

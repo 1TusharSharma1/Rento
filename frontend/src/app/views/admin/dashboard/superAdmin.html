@@ -1,0 +1,128 @@
+<div ng-controller="SuperAdminController">
+  <app-navbar active-state="adminDashboard"></app-navbar>
+  
+  <!-- Main Dashboard Content -->
+  <div class="container" style="margin-top:70px;">
+    <div class="page-header">
+      <h1>Admin Dashboard</h1>
+      <h3 class="lead">User Management</h3>
+    </div>
+
+    <!-- Users Section -->
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <strong>Platform Users</strong>
+        <button class="btn btn-xs btn-default pull-right" ng-click="vm.loadUsers()">
+          <i class="glyphicon glyphicon-refresh"></i> Refresh
+        </button>
+        <div class="clearfix"></div>
+      </div>
+      
+      <!-- Search Bar -->
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-md-6 col-md-offset-3">
+            <div class="input-group">
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Search users by name or email..." 
+                ng-model="vm.searchTerm" 
+                ng-change="vm.searchUsers()"
+                aria-label="Search users"
+              >
+              <div class="input-group-addon" ng-if="vm.isSearching">
+                <i class="fa fa-spinner fa-spin"></i>
+              </div>
+              <div class="input-group-btn">
+                <button class="btn btn-default" type="button" ng-click="vm.clearSearch()" ng-disabled="!vm.searchTerm" title="Clear search">
+                  <i class="glyphicon glyphicon-remove"></i>
+                </button>
+                <button class="btn btn-primary" type="button" ng-click="vm.loadUsers()" title="Search users">
+                  <i class="glyphicon glyphicon-search"></i> Search
+                </button>
+              </div>
+            </div>
+            <p class="help-block text-center" ng-if="vm.searchTerm">
+              <small>Searching for "{{vm.searchTerm}}"... Results will update automatically.</small>
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Loading and Error Messages -->
+      <div class="panel-body text-center" ng-if="vm.loading">
+        <i class="fa fa-spinner fa-spin fa-2x"></i>
+        <p>Loading users...</p>
+      </div>
+      
+      <div class="panel-body text-center text-danger" ng-if="vm.error">
+        <i class="fa fa-exclamation-triangle fa-2x"></i>
+        <p>{{vm.error}}</p>
+      </div>
+      
+      <!-- Users Table -->
+      <div class="panel-body" ng-if="!vm.loading && !vm.error">
+        <div class="table-responsive">
+          <table class="table table-hover table-striped">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="user in vm.users">
+                <td>{{user.email}}</td>
+                <td>{{user.name}}</td>
+                <td>
+                  <span class="label" 
+                        ng-class="{'label-primary': user.role==='admin', 'label-success': user.role==='seller', 'label-info': user.role==='user'}">
+                    {{user.role}}
+                  </span>
+                </td>
+                <td>
+                  <span class="label" ng-class="{'label-success': !user.isLocked, 'label-danger': user.isLocked}">
+                    {{user.isLocked ? 'Locked' : 'Active'}}
+                  </span>
+                </td>
+                <td>{{user.createdAt | date:'mediumDate'}}</td>
+                <td>
+                  <button 
+                    class="btn btn-sm" 
+                    ng-class="{'btn-warning': !user.isLocked, 'btn-success': user.isLocked}"
+                    ng-click="vm.toggleUserLock(user)"
+                  >
+                    <i class="glyphicon" ng-class="{'glyphicon-lock': !user.isLocked, 'glyphicon-unlock': user.isLocked}"></i>
+                    {{user.isLocked ? 'Unlock' : 'Lock'}}
+                  </button>
+                </td>
+              </tr>
+              <tr ng-if="vm.users.length === 0">
+                <td colspan="6" class="text-center">No users found</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="panel-footer text-center" ng-if="vm.totalPages > 1">
+        <ul uib-pagination 
+            total-items="vm.totalItems" 
+            ng-model="vm.currentPage" 
+            ng-change="vm.pageChanged()" 
+            max-size="5" 
+            items-per-page="vm.itemsPerPage" 
+            boundary-links="true" 
+            class="pagination-sm">
+        </ul>
+        <p class="text-muted">Showing page {{vm.currentPage}} of {{vm.totalPages}}</p>
+      </div>
+    </div>
+  </div>
+</div>

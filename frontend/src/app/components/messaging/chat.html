@@ -1,0 +1,92 @@
+<div ng-controller="ChatController as vm" ng-init="vm.init()">
+    <header class="header">
+      <div class="container">
+        <div class="header__content">
+          <a ui-sref="conversations" class="back-button">
+            <span class="back-icon">←</span>
+            <span>Back to Conversations</span>
+          </a>
+          <h2 class="chat-title">{{vm.chatHeader}}</h2>
+        </div>
+      </div>
+    </header>
+    
+    <main class="chat container">
+      <!-- Loading state -->
+      <div class="loading-card" ng-if="vm.loading">
+        <div class="loading-spinner"></div>
+        <p>Loading conversation...</p>
+      </div>
+      
+      <!-- Error message -->
+      <div class="error-message" ng-if="vm.errorMessage">
+        {{vm.errorMessage}}
+      </div>
+      
+      <div class="chat-container" ng-if="!vm.loading">
+        <div class="chat-header">
+          <h2 class="chat-user-name">{{vm.chatHeader}}</h2>
+        </div>
+    
+        <div class="chat-messages-container">
+          <div class="empty-chat" ng-if="vm.messages.length === 0">
+            <div class="empty-state-icon">✉️</div>
+            <h3>No messages yet</h3>
+            <p>Start the conversation by sending a message below.</p>
+          </div>
+      
+          <div class="chat-messages" ng-if="vm.messages.length > 0">
+            <div class="message-date-separator" ng-if="vm.messages.length > 0">
+              {{vm.messages[0].timestamp | date:'MMMM d, yyyy'}}
+            </div>
+            
+            <div class="message-wrapper" 
+                 ng-repeat="msg in vm.messages track by msg.message_id"
+                 ng-class="{'message-sent': msg.sender_id === vm.currentUser._id, 'message-received': msg.sender_id !== vm.currentUser._id}">
+              <div class="message">
+                <p class="message-content">{{msg.content}}</p>
+                <div ng-if="msg.attachment_url" class="message-attachment-container">
+                  <img ng-src="{{msg.attachment_url}}" alt="Attached image" class="message-attachment" ng-click="vm.downloadAttachment(msg.attachment_url)">
+                </div>
+                <div class="message-timestamp">
+                  {{msg.timestamp | date:'h:mm a'}}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Typing indicator -->
+            <div class="typing-indicator" ng-if="vm.otherUserTyping">
+              <span class="typing-dots"><span>.</span><span>.</span><span>.</span></span>
+              <span class="typing-text">{{vm.getOtherUserName()}} is typing...</span>
+            </div>
+          </div>
+        </div>
+    
+        <div class="chat-input-container">
+          <!-- Attachment preview -->
+          
+          <div class="chat-input-wrapper">
+            <textarea 
+              ng-model="vm.newMessage" 
+              placeholder="Type a message..." 
+              ng-keypress="$event.keyCode === 13 && !$event.shiftKey && vm.send()"
+              ng-keyup="vm.handleTyping()"
+              ng-focus="vm.onInputFocus()"
+              ng-blur="vm.onInputBlur()"
+              rows="1"
+              auto-resize
+              class="message-input"
+            ></textarea>
+            
+            <div class="chat-actions">
+            
+              <button class="action-btn send-btn" ng-click="vm.send()" ng-disabled="!vm.newMessage && !vm.attachmentFile">
+                <span class="icon">➤</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  

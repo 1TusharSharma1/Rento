@@ -1,0 +1,72 @@
+<div ng-controller="ConversationsController as vm" ng-init="vm.init()">
+    <header class="header">
+      <div class="container">
+        <div class="header__content">
+          <a href="javascript:void(0)" ng-click="vm.goBack()" class="back-button">
+            <span class="back-icon">←</span>
+            <span>Back</span>
+          </a>
+          <h2 class="header-title">Messages</h2>
+        </div>
+      </div>
+    </header>
+  
+    <main class="conversations container">
+      <h1>Your Conversations</h1>
+  
+      <!-- Loading indicator -->
+      <div class="loading-card" ng-if="vm.loading">
+        <div class="loading-spinner"></div>
+        <p>Loading your conversations...</p>
+      </div>
+  
+      <!-- Error message -->
+      <div class="error-message" ng-if="vm.errorMessage">
+        {{vm.errorMessage}}
+      </div>
+  
+      <div class="conversation-list" ng-if="!vm.loading && vm.conversations.length > 0">
+        <div 
+          class="conversation-item" 
+          ng-repeat="conv in vm.conversations"
+          ng-click="vm.openChat(conv)"
+          ng-class="{'unread': conv.isUnread}"
+        >
+          <div class="conversation-avatar">
+            <!-- Show user image if available -->
+            <img ng-if="conv.other_participant.profile_image" ng-src="{{conv.other_participant.profile_image}}" alt="User Avatar" class="user-avatar">
+            
+            <!-- Show fallback with initials if no image -->
+            <div ng-if="!conv.other_participant.profile_image" class="avatar-fallback">
+              {{vm.getUserInitials(conv.otherUserName)}}
+            </div>
+          </div>
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <div class="conversation-title">
+                {{conv.vehicleName || 'Vehicle #'+conv.vehicle_id}}
+              </div>
+              <div class="conversation-time">
+                {{conv.updated_at | date:'MMM d, h:mm a'}}
+              </div>
+            </div>
+            <div class="conversation-details">
+              <span class="user-name">{{conv.otherUserName || (conv.other_participant.name || 'Car Owner ')}}</span>
+              <span class="last-message" ng-if="conv.last_message">{{conv.last_message}}</span>
+              <span class="last-message" ng-if="!conv.last_message">No messages yet</span>
+            </div>
+            <div class="conversation-meta">
+              <span class="unread-indicator" ng-if="conv.isUnread">New</span>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <div class="empty-state" ng-if="!vm.loading && vm.conversations.length === 0">
+        <div class="empty-state-icon">💬</div>
+        <h3>No conversations yet</h3>
+        <p>When you message vehicle owners or receive messages, they'll appear here.</p>
+      </div>
+    </main>
+  </div>
+  

@@ -1,0 +1,74 @@
+<app-navbar active-state="userDashboard"></app-navbar>
+
+<div class="container" style="margin-top: 70px;" ng-controller="UserDashboardController as vm">
+  <!-- Loading State -->
+  <div class="text-center" ng-if="vm.loading">
+    <i class="glyphicon glyphicon-refresh spin" style="font-size: 24px;"></i>
+    <p>Loading profile...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div class="alert alert-danger" ng-if="vm.error">
+    <i class="glyphicon glyphicon-exclamation-sign"></i> {{vm.error}}
+  </div>
+
+  <!-- Profile Content -->
+  <div ng-if="!vm.loading && !vm.error && vm.userProfile" class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">User Profile</h3>
+    </div>
+    <div class="panel-body">
+      <div class="row">
+        <!-- Profile Image -->
+        <div class="col-sm-4 text-center">
+          <img ng-src="{{vm.userProfile.profile_image || 'https://photosking.net/wp-content/uploads/2024/05/no-dp-pic_23.webp'}}" 
+               alt="Profile Image" 
+               class="img-circle img-responsive" 
+               style="max-width:200px; margin: 0 auto;">
+        </div>
+        
+        <!-- Profile Details -->
+        <div class="col-sm-8">
+          <div class="list-group">
+            <div class="list-group-item">
+              <strong>Name:</strong> {{vm.userProfile.name || 'Not specified'}}
+            </div>
+            <div class="list-group-item">
+              <strong>Email:</strong> {{vm.userProfile.email}}
+            </div>
+            <div class="list-group-item">
+              <strong>Role:</strong> {{vm.userProfile.role}}
+            </div>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="btn-group" style="margin-top: 20px;">
+            <button class="btn btn-primary" ng-if="vm.userProfile.role === 'admin'" ng-click="vm.goToAdminDashboard()">
+              <i class="glyphicon glyphicon-dashboard"></i> Admin Dashboard
+            </button>
+            <button class="btn btn-success" ng-if="vm.userProfile.role === 'seller'" ng-click="vm.goToSellerDashboard()">
+              <i class="glyphicon glyphicon-briefcase"></i> Seller Dashboard
+            </button>
+            <button class="btn btn-info" ng-if="vm.userProfile.role === 'buyer' || vm.userProfile.role === 'user'" ng-click="vm.goToBuyerHome()">
+              <i class="glyphicon glyphicon-shopping-cart"></i> Browse Cars
+            </button>
+            <button class="btn btn-danger" ng-click="vm.logout()">
+              <i class="glyphicon glyphicon-log-out"></i> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .spin { animation: spin 1s infinite linear; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .btn-group { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn-group .btn { flex: 1; min-width: 200px; }
+  .panel { box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  .list-group-item { border-left: none; border-right: none; }
+  .list-group-item:first-child { border-top: none; }
+  .list-group-item:last-child { border-bottom: none; }
+</style>

@@ -1,0 +1,262 @@
+
+<app-navbar active-state="adminDashboard"></app-navbar>
+
+<body>
+
+  <div ng-controller="AdminAnalyticsController as vm" ng-init="vm.init()">
+
+    <div class="alert alert-danger" ng-if="vm.error">
+      {{ vm.error }}
+    </div>
+    
+    <div class="container" style="margin-top: 70px;">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="row">
+          <div class="col-sm-8">
+            <h1>Admin Analytics Dashboard</h1>
+            <p class="lead">Platform Overview & Management</p>
+          </div>
+          <div class="col-sm-4 text-right">
+            <!-- Date range filter -->
+            <div class="date-filter-container">
+              <div class="form-group">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" class="form-control" ng-model="vm.dateFilter.startDate">
+              </div>
+              <div class="form-group">
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" class="form-control" ng-model="vm.dateFilter.endDate">
+              </div>
+              <div class="form-group">
+                <label for="timeUnit">Time Unit:</label>
+                <select id="timeUnit" class="form-control" ng-model="vm.dateFilter.timeUnit">
+                  <option value="day">Day</option>
+                  <option value="week">Week</option>
+                  <option value="month">Month</option>
+                  <option value="year">Year</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" ng-click="vm.refreshData()" ng-disabled="vm.isLoading">
+                <i class="glyphicon glyphicon-refresh" ng-class="{'spin': vm.isLoading}"></i> 
+                {{vm.isLoading ? 'Loading...' : 'Apply Filters'}}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading indicator -->
+      <div class="text-center" ng-if="vm.isLoading">
+        <div class="spinner">
+          <i class="glyphicon glyphicon-refresh spin" style="font-size: 24px; margin: 20px;"></i>
+          <p>Loading analytics data...</p>
+        </div>
+      </div>
+
+      <!-- Stats Overview using panels -->
+      <div class="row">
+        <!-- First Row of Stats (Dashboard overview) -->
+        <div class="col-sm-3" ng-if="vm.analyticsData.dashboard">
+          <div class="panel panel-primary">
+            <div class="panel-heading">
+              <h3 class="panel-title">Total Users</h3>
+            </div>
+            <div class="panel-body text-center">
+              <h3>{{vm.analyticsData.dashboard.counts.users || '0'}}</h3>
+              <div>
+                <span class="label label-success">New: {{vm.analyticsData.dashboard.recent.newUsers || '0'}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-3" ng-if="vm.analyticsData.dashboard">
+          <div class="panel panel-success">
+            <div class="panel-heading">
+              <h3 class="panel-title">Total Vehicles</h3>
+            </div>
+            <div class="panel-body text-center">
+              <h3>{{vm.analyticsData.dashboard.counts.vehicles || '0'}}</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-3" ng-if="vm.analyticsData.dashboard">
+          <div class="panel panel-info">
+            <div class="panel-heading">
+              <h3 class="panel-title">Total Bookings</h3>
+            </div>
+            <div class="panel-body text-center">
+              <h3>{{vm.analyticsData.dashboard.counts.bookings || '0'}}</h3>
+              <small>New: {{vm.analyticsData.dashboard.recent.newBookings || '0'}}</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-3" ng-if="vm.analyticsData.dashboard">
+          <div class="panel panel-warning">
+            <div class="panel-heading">
+              <h3 class="panel-title">Total Revenue</h3>
+            </div>
+            <div class="panel-body text-center">
+              <h3>₹{{vm.analyticsData.dashboard.counts.revenue || '0'}}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section using tabset -->
+      <uib-tabset class="nav-tabs-custom">
+        <uib-tab heading="User Analytics">
+          <div class="row" style="margin-top: 20px;">
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">User Distribution by Role</h3>
+                </div>
+                <div class="panel-body">
+                  <canvas id="userRolesChart" height="300"></canvas>
+                </div>
+              </div>
+            </div>
+          
+          </div>
+        </uib-tab>
+        
+        <uib-tab heading="Booking Analytics">
+          <div class="row" style="margin-top: 20px;">
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Booking Status Distribution</h3>
+                </div>
+                <div class="panel-body">
+                  <canvas id="bookingStatusChart" height="300"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Revenue Over Time</h3>
+                </div>
+                <div class="panel-body">
+                  <canvas id="revenueOverTimeChart" height="300"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Outstation vs Local Bookings</h3>
+                </div>
+                <div class="panel-body">
+                  <canvas id="outstationLocalChart" height="300"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Top Booked Vehicles</h3>
+                </div>
+                <div class="panel-body">
+                  <canvas id="topVehiclesChart" height="300"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </uib-tab>
+        
+        <uib-tab heading="Bidding Analytics">
+          <div class="row" style="margin-top: 20px;">
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Bid Status Distribution</h3>
+                </div>
+                <div class="panel-body">
+                  <canvas id="bidStatusChart" height="300"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Bid Conversion Rate</h3>
+                </div>
+                <div class="panel-body">
+                  <canvas id="conversionRateChart" height="300"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Bids by Time of Day</h3>
+                </div>
+                <div class="panel-body">
+                  <canvas id="bidTimeOfDayChart" height="300"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Most Bidded Vehicles</h3>
+                </div>
+                <div class="panel-body">
+                  <canvas id="mostBiddedChart" height="300"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </uib-tab>
+        
+        <uib-tab heading="Vehicle Analytics">
+          <div class="row" style="margin-top: 20px;">
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Vehicles by Category</h3>
+                </div>
+                <div class="panel-body">
+                  <canvas id="vehicleCategoryChart" height="300"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Vehicles by Location</h3>
+                </div>
+                <div class="panel-body">
+                  <canvas id="vehicleLocationChart" height="300"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Price Range by Category</h3>
+                </div>
+                <div class="panel-body">
+                  <canvas id="priceRangeChart" height="300"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">Vehicle Growth Over Time</h3>
+                </div>
+                <div class="panel-body">
+                  <canvas id="vehicleGrowthChart" height="300"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </uib-tab>
+      </uib-tabset>
+    </div>
+  </div>
+</body>
+</body>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="carRentalApp">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Sign Up - RentO</title>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title text-center">Become a Seller</h3>
+          </div>
+          <div class="panel-body">
+            <form id="seller-signup-form" name="sellerSignupForm"
+                  ng-controller="SellerSignupController as vm"
+                  ng-submit="vm.signUpSeller()">
+              
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" ng-model="vm.email" class="form-control" placeholder="Enter Registered Email" required />
+              </div>
+              
+              <div class="form-group">
+                <label for="businessName">Business Name</label>
+                <input type="text" id="businessName" ng-model="vm.businessName" class="form-control" placeholder="User Name / Business Name" required />
+              </div>
+              
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" ng-model="vm.phone" class="form-control" placeholder="Enter Phone Number" required />
+              </div>
+              
+              <h4>Business Address</h4>
+              <hr>
+              
+              <div class="form-group">
+                <label for="line1">Address Line 1</label>
+                <input type="text" id="line1" ng-model="vm.line1" class="form-control" placeholder="Address Line 1" required />
+              </div>
+              
+              <div class="form-group">
+                <label for="line2">Address Line 2</label>
+                <input type="text" id="line2" ng-model="vm.line2" class="form-control" placeholder="Address Line 2 (Optional)" />
+              </div>
+              
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" id="city" ng-model="vm.city" class="form-control" placeholder="City" required />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="state">State</label>
+                    <input type="text" id="state" ng-model="vm.state" class="form-control" placeholder="State" required />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="pincode">Pincode</label>
+                    <input type="text" id="pincode" ng-model="vm.pincode" class="form-control" placeholder="Pincode" required />
+                  </div>
+                </div>
+              </div>
+              
+              <h4>Set Your Password</h4>
+              <hr>
+              
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" ng-model="vm.password" class="form-control" placeholder="Enter Password" required />
+              </div>
+              
+              <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" ng-model="vm.confirmPassword" class="form-control" placeholder="Confirm Password" required />
+              </div>
+              
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block">Register as Seller</button>
+              </div>
+              
+              <p class="text-center">
+                Already a seller? <a ui-sref="login">Login</a>
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

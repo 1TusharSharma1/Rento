@@ -1,0 +1,273 @@
+<body>
+  <div ng-controller="SellerBookingsController as vm" ng-init="vm.init()">
+    <!-- Use the navbar directive instead of custom navbar -->
+    <app-navbar active-state="sellerBookings"></app-navbar>
+
+    <!-- Main Content -->
+    <main class="container" style="margin-top:100px;">
+      <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+          <h1 class="panel-title pull-left" style="padding-top: 7.5px;">Seller Bookings</h1>
+          <div class="btn-group pull-right">
+            <button type="button" class="btn btn-default" ng-click="vm.loadBookings()">
+              <i class="glyphicon glyphicon-refresh"></i> Refresh
+            </button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <!-- Analytics Cards -->
+          <div class="row">
+            <div class="col-sm-3" ng-repeat="card in vm.analyticsCards">
+              <div class="panel" ng-class="{'panel-primary': card.title === 'Total Revenue', 'panel-success': card.title === 'Completed Trips', 'panel-warning': card.title === 'Ongoing Trips', 'panel-info': card.title === 'Pending Bookings'}">
+                <div class="panel-heading">
+                  <h4 class="panel-title text-center">{{card.title}}</h4>
+                </div>
+                <div class="panel-body text-center">
+                  <h3>{{card.value}}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter Tabs -->
+          <div class="text-center" style="margin-bottom:20px;">
+            <div class="btn-group" data-toggle="buttons">
+              <label class="btn btn-default" 
+                    ng-class="{'active': vm.currentView === 'pending', 'btn-warning': vm.currentView === 'pending'}" 
+                    ng-click="vm.changeView('pending')">
+                <input type="radio" name="filter" autocomplete="off" ng-checked="vm.currentView==='pending'"> 
+                <i class="glyphicon glyphicon-time"></i> Not Started
+              </label>
+              <label class="btn btn-default" 
+                    ng-class="{'active': vm.currentView === 'in_progress', 'btn-success': vm.currentView === 'in_progress'}" 
+                    ng-click="vm.changeView('in_progress')">
+                <input type="radio" name="filter" autocomplete="off" ng-checked="vm.currentView==='in_progress'"> 
+                <i class="glyphicon glyphicon-road"></i> Ongoing
+              </label>
+              <label class="btn btn-default" 
+                    ng-class="{'active': vm.currentView === 'completed', 'btn-info': vm.currentView === 'completed'}" 
+                    ng-click="vm.changeView('completed')">
+                <input type="radio" name="filter" autocomplete="off" ng-checked="vm.currentView==='completed'"> 
+                <i class="glyphicon glyphicon-check"></i> Completed
+              </label>
+            </div>
+          </div>
+
+          <!-- Loading Indicator -->
+          <div class="text-center" ng-if="vm.loading">
+            <i class="glyphicon glyphicon-refresh spin"></i> Loading bookings...
+          </div>
+
+          <!-- Error Message -->
+          <div class="alert alert-danger" ng-if="vm.error">
+            {{vm.error}}
+          </div>
+
+          <!-- Empty State -->
+          <div class="well text-center" ng-if="!vm.loading && vm.bookings.length === 0">
+            <h3>No bookings found</h3>
+            <p>There are no bookings in this category yet.</p>
+          </div>
+
+          <!-- Bookings Table -->
+          <div class="table-responsive" ng-if="vm.bookings.length > 0">
+            <table class="table table-striped table-hover">
+              <thead class="bg-primary">
+                <tr>
+                  <th width="8%" class="text-white">ID</th>
+                  <th width="18%" class="text-white">Vehicle</th>
+                  <th width="18%" class="text-white">Renter</th>
+                  <th width="14%" class="text-white">Start Date</th>
+                  <th width="14%" class="text-white">End Date</th>
+                  <th width="10%" class="text-white">Amount</th>
+                  <th width="8%" class="text-white">Status</th>
+                  <th width="10%" class="text-white">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="booking in vm.bookings">
+                  <td><span class="label label-default">#{{booking.booking_id.substr(-6)}}</span></td>
+                  <td>
+                    <strong>{{booking.vehicle_details.title || 'Vehicle'}}</strong>
+                  </td>
+                  <td>
+                    <strong>{{booking.renter.name || 'Renter'}}</strong>
+                  </td>
+                  <td>{{booking.booking_start_date | date:'MMM d, yyyy'}}</td>
+                  <td>{{booking.booking_end_date | date:'MMM d, yyyy'}}</td>
+                  <td><span class="text-success">₹{{booking.total_price}}</span></td>
+                  <td>
+                    <span class="label" 
+                          ng-class="{
+                            'label-warning': booking.status === 'pending',
+                            'label-success': booking.status === 'in_progress',
+                            'label-info': booking.status === 'completed',
+                            'label-danger': booking.status === 'cancelled'
+                          }">
+                      {{booking.status | uppercase}}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group">
+                      <button class="btn btn-success btn-sm" 
+                              ng-if="booking.status === 'pending'" 
+                              ng-click="vm.startTrip(booking)">
+                        <i class="glyphicon glyphicon-play"></i> Start
+                      </button>
+                      <button class="btn btn-primary btn-sm" 
+                              ng-if="booking.status === 'in_progress'" 
+                              ng-click="vm.endTrip(booking)">
+                        <i class="glyphicon glyphicon-stop"></i> End
+                      </button>
+                      <button class="btn btn-info btn-sm" 
+                              ng-if="booking.status === 'completed'" 
+                              ng-click="vm.viewReceipt(booking)">
+                        <i class="glyphicon glyphicon-list-alt"></i> Receipt
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <nav aria-label="Bookings pagination" ng-if="vm.bookings.length > 0">
+            <ul class="pagination">
+              <li ng-class="{disabled: vm.pagination.currentPage === 1}">
+                <a href="" aria-label="Previous" ng-click="vm.goToPage(vm.pagination.currentPage - 1)">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li ng-repeat="page in vm.pagination.pages" 
+                  ng-class="{active: page === vm.pagination.currentPage}">
+                <a href="" ng-click="vm.goToPage(page)">{{page}}</a>
+              </li>
+              <li ng-class="{disabled: vm.pagination.currentPage === vm.pagination.totalPages}">
+                <a href="" aria-label="Next" ng-click="vm.goToPage(vm.pagination.currentPage + 1)">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal Templates (to be opened via $uibModal) -->
+    <script type="text/ng-template" id="startTripModal.html">
+      <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss()">&times;</button>
+        <h4 class="modal-title"><i class="glyphicon glyphicon-road"></i> Start Trip</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Initial Odometer Reading</label>
+          <div class="input-group">
+            <input type="number" class="form-control" ng-model="modalVm.initialOdometer" 
+                   placeholder="Initial Odometer" min="0" required>
+            <span class="input-group-addon">km</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" ng-click="$dismiss()">Cancel</button>
+        <button class="btn btn-success" ng-click="modalVm.submitStartTrip()">
+          <i class="glyphicon glyphicon-play"></i> Start Trip
+        </button>
+      </div>
+    </script>
+
+    <script type="text/ng-template" id="endTripModal.html">
+      <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss()">&times;</button>
+        <h4 class="modal-title"><i class="glyphicon glyphicon-flag"></i> End Trip</h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Final Odometer Reading</label>
+          <div class="input-group">
+            <input type="number" class="form-control" ng-model="modalVm.finalOdometer" 
+                   placeholder="Final Odometer" min="0" required>
+            <span class="input-group-addon">km</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" ng-click="$dismiss()">Cancel</button>
+        <button class="btn btn-primary" ng-click="modalVm.submitEndTrip()">
+          <i class="glyphicon glyphicon-stop"></i> End Trip
+        </button>
+      </div>
+    </script>
+
+    <script type="text/ng-template" id="receiptModal.html">
+      <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss()">&times;</button>
+        <h4 class="modal-title"><i class="glyphicon glyphicon-list-alt"></i> Trip Receipt</h4>
+      </div>
+      <div class="modal-body">
+        <div id="printableReceipt" class="panel panel-default">
+          <div class="panel-heading text-center">
+            <h4>TRIP SUMMARY</h4>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-xs-6">
+                <strong>Trip Duration:</strong>
+              </div>
+              <div class="col-xs-6 text-right">
+                {{modalVm.receipt.duration}}
+              </div>
+            </div>
+            <hr class="small">
+            <div class="row">
+              <div class="col-xs-6">
+                <strong>Distance Driven:</strong>
+              </div>
+              <div class="col-xs-6 text-right">
+                {{modalVm.receipt.kmDriven}}
+              </div>
+            </div>
+            <hr class="small">
+            <div class="row">
+              <div class="col-xs-6">
+                <strong>Base Price:</strong>
+              </div>
+              <div class="col-xs-6 text-right">
+                {{modalVm.receipt.basePrice}}
+              </div>
+            </div>
+            <hr class="small">
+            <div class="row">
+              <div class="col-xs-6">
+                <strong>Extra Distance Charges:</strong>
+              </div>
+              <div class="col-xs-6 text-right">
+                {{modalVm.receipt.extraCharge}}
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-xs-6">
+                <strong>TOTAL:</strong>
+              </div>
+              <div class="col-xs-6 text-right">
+                <strong>{{modalVm.receipt.finalPrice}}</strong>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer text-center text-muted">
+            <small>Thank you for using our service!</small>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" ng-click="$dismiss()">Close</button>
+        <button class="btn btn-primary" ng-click="modalVm.printReceipt()">
+          <i class="glyphicon glyphicon-print"></i> Print
+        </button>
+      </div>
+    </script>
+  </div>
+</body>
